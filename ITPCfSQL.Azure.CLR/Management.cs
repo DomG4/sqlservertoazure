@@ -13,7 +13,18 @@ namespace ITPCfSQL.Azure.CLR
         #region Common methods
         public static X509Certificate2 RetrieveCertificateInStore(string certificateThumbprint)
         {
-            X509Store certStore = new X509Store(StoreName.My, StoreLocation.CurrentUser);
+            try
+            {
+                return RetrieveCertificateInStore(certificateThumbprint, StoreLocation.CurrentUser);
+            }
+            catch
+            {
+                return RetrieveCertificateInStore(certificateThumbprint, StoreLocation.LocalMachine);
+            }
+        }
+        public static X509Certificate2 RetrieveCertificateInStore(string certificateThumbprint, StoreLocation sl)
+        {
+            X509Store certStore = new X509Store(StoreName.My, sl);
             certStore.Open(OpenFlags.ReadOnly);
 
             //X509Certificate2Collection certCollection = certStore.Certificates.Find(
@@ -48,6 +59,8 @@ namespace ITPCfSQL.Azure.CLR
 
             return cert;
         }
+      
+        
         #endregion
 
         [SqlFunction(
