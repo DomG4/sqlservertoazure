@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Xml;
 
 namespace ITPCfSQL.Azure
@@ -51,16 +49,16 @@ namespace ITPCfSQL.Azure
         {
             string strNextMarker = null;
             List<Blob> lBlobs = new List<Blob>();
-
+            int i = 0;
             do
             {
                 string res = Internal.InternalMethods.ListBlobs(
-                    AzureBlobService.AccountName, AzureBlobService.SharedKey, AzureBlobService.UseHTTPS,
-                    this.Name, prefix,
+                    this.AzureBlobService.AccountName, this.AzureBlobService.SharedKey, this.AzureBlobService.UseHTTPS,
+                    this.Name, prefix,strNextMarker,0,
                     IncludeSnapshots: includeSnapshots,
                     IncludeMetadata: includeMetadata,
-                    IncludeCopy: includeCopy,
-                    IncludeUncommittedBlobs: includeUncommittedBlobs,
+                      IncludeUncommittedBlobs: includeUncommittedBlobs,
+                    IncludeCopy: includeCopy,    
                     timeoutSeconds: timeoutSeconds,
                     xmsclientrequestId: xmsclientrequestId);
 
@@ -69,8 +67,9 @@ namespace ITPCfSQL.Azure
 
                 lBlobs.AddRange(Blob.ParseFromXMLEnumerationResults(this, doc));
                 strNextMarker = Blob.GetNextMarkerFromXMLEnumerationResults(doc);
+                i++;
 
-            } while (!string.IsNullOrEmpty(strNextMarker));
+            } while (!string.IsNullOrEmpty(strNextMarker) & i < 150);
 
             return lBlobs;
         }
